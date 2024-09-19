@@ -1,0 +1,84 @@
+package CarLoan.Utils;
+
+import CarLoan.DTO.DTOCarLoanApplicationDate;
+import Common.Utils.DbUtils.DbClient;
+import lombok.extern.log4j.Log4j2;
+
+import java.util.List;
+import java.util.Map;
+@Log4j2
+public class ApplicationDataRepository {
+
+    private final DbClient dbClient;
+
+    public ApplicationDataRepository(String configName) {
+        dbClient = new DbClient(configName, "db_carLoanTest_port", "db_carLoanTest_host", "db_carLoanTest_name", "db_carLoanTest_user", "db_carLoanTest_password");
+    }
+
+    public DTOCarLoanApplicationDate fetchApplicationData(String number) {
+        String query = "SELECT \"number\", status, last_name, first_name, middle_name, birth_date, passport_series, passport_number, " +
+                "work_place_name, work_place_inn, work_place_phone_number, employment_type, work_experience_status, income, " +
+                "marital_status, education_type, additional_document_type, additional_document_number, additional_document_issue_date, " +
+                "contact_phone_number, registration_address_date, gender, passport_issue_date, passport_department, " +
+                "passport_department_code, birth_place, birth_country, mobile_phone_number, division_id, car_brand, car_model, " +
+                "car_type, car_production_year, car_category, is_car_used, product_id, car_price, initial_payment, loan_term, " +
+                "mdm_client_id, mdm_lead_id, client_type " +
+                "FROM public.application WHERE \"number\" = '" + number + "';";
+
+        List<Map<String, String>> results = dbClient.executeQueryMultipleResult(query);
+
+        if (results.isEmpty()) {
+            log.info("В базе данных результатов не найдено для номера заявки: {}", number);
+            return null;
+        }
+
+        return mapRowToDto(results.get(0));
+    }
+
+    private DTOCarLoanApplicationDate mapRowToDto(Map<String, String> row) {
+        DTOCarLoanApplicationDate data = new DTOCarLoanApplicationDate();
+        data.setNumber(row.get("number"));
+        data.setStatus(row.get("status"));
+        data.setLastName(row.get("last_name"));
+        data.setFirstName(row.get("first_name"));
+        data.setMiddleName(row.get("middle_name"));
+        data.setBirthDate(row.get("birth_date"));
+        data.setPassportSeries(row.get("passport_series"));
+        data.setPassportNumber(row.get("passport_number"));
+        data.setWorkPlaceName(row.get("work_place_name"));
+        data.setWorkPlaceInn(row.get("work_place_inn"));
+        data.setWorkPlacePhoneNumber(row.get("work_place_phone_number"));
+        data.setEmploymentType(row.get("employment_type"));
+        data.setWorkExperienceStatus(row.get("work_experience_status"));
+        data.setIncome(row.get("income"));
+        data.setMaritalStatus(row.get("marital_status"));
+        data.setEducationType(row.get("education_type"));
+        data.setAdditionalDocumentType(row.get("additional_document_type"));
+        data.setAdditionalDocumentNumber(row.get("additional_document_number"));
+        data.setAdditionalDocumentIssueDate(row.get("additional_document_issue_date"));
+        data.setContactPhoneNumber(row.get("contact_phone_number"));
+        data.setRegistrationAddressDate(row.get("registration_address_date"));
+        data.setGender(row.get("gender"));
+        data.setPassportIssueDate(row.get("passport_issue_date"));
+        data.setPassportDepartment(row.get("passport_department"));
+        data.setPassportDepartmentCode(row.get("passport_department_code"));
+        data.setBirthPlace(row.get("birth_place"));
+        data.setBirthCountry(row.get("birth_country"));
+        data.setMobilePhoneNumber(row.get("mobile_phone_number"));
+        data.setDivisionId(row.get("division_id"));
+        data.setCarBrand(row.get("car_brand"));
+        data.setCarModel(row.get("car_model"));
+        data.setCarType(row.get("car_type"));
+        data.setCarProductionYear(row.get("car_production_year"));
+        data.setCarCategory(row.get("car_category"));
+        data.setIsCarUsed(row.get("is_car_used"));
+        data.setProductId(row.get("product_id"));
+        data.setCarPrice(row.get("car_price"));
+        data.setInitialPayment(row.get("initial_payment"));
+        data.setLoanTerm(row.get("loan_term"));
+        data.setMdmClientId(row.get("mdm_client_id"));
+        data.setMdmLeadId(row.get("mdm_lead_id"));
+        data.setClientType(row.get("client_type"));
+        return data;
+    }
+}
