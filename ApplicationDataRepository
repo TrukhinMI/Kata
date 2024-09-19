@@ -8,13 +8,17 @@ import java.util.List;
 import java.util.Map;
 @Log4j2
 public class ApplicationDataRepository {
+    // Клиент базы данных для выполнения запросов
+    private final DbClient dbClient; 
 
-    private final DbClient dbClient;
 
+    // Конструктор, который инициализирует DbClient с конфигурацией базы данных
     public ApplicationDataRepository(String configName) {
         dbClient = new DbClient(configName, "db_carLoanTest_port", "db_carLoanTest_host", "db_carLoanTest_name", "db_carLoanTest_user", "db_carLoanTest_password");
     }
 
+
+    // Метод для получения данных заявки по номеру заявки
     public DTOCarLoanApplicationDate fetchApplicationData(String number) {
         String query = "SELECT \"number\", status, last_name, first_name, middle_name, birth_date, passport_series, passport_number, " +
                 "work_place_name, work_place_inn, work_place_phone_number, employment_type, work_experience_status, income, " +
@@ -25,18 +29,25 @@ public class ApplicationDataRepository {
                 "mdm_client_id, mdm_lead_id, client_type " +
                 "FROM public.application WHERE \"number\" = '" + number + "';";
 
+        // Выполнение запроса и сохранение результатов
         List<Map<String, String>> results = dbClient.executeQueryMultipleResult(query);
 
+        // Проверка, есть ли результаты
         if (results.isEmpty()) {
             log.info("В базе данных результатов не найдено для номера заявки: {}", number);
-            return null;
+            return null; // Возвращаем null, если данные не найдены
         }
 
+        // Преобразуем первую строку результата в DTO и возвращаем его
         return mapRowToDto(results.get(0));
     }
 
+    // Вспомогательный метод для преобразования строки результата из базы данных в объект DTOCarLoanApplicationDate
     private DTOCarLoanApplicationDate mapRowToDto(Map<String, String> row) {
+        // Создаем новый объект DTO
         DTOCarLoanApplicationDate data = new DTOCarLoanApplicationDate();
+
+        // Установка свойств DTO на основе результата из базы данных
         data.setNumber(row.get("number"));
         data.setStatus(row.get("status"));
         data.setLastName(row.get("last_name"));
@@ -79,6 +90,6 @@ public class ApplicationDataRepository {
         data.setMdmClientId(row.get("mdm_client_id"));
         data.setMdmLeadId(row.get("mdm_lead_id"));
         data.setClientType(row.get("client_type"));
-        return data;
+        return data; // Возвращаем заполненный объект DTO
     }
 }
